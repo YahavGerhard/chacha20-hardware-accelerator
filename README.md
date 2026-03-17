@@ -8,12 +8,12 @@ This project showcases a custom-designed **ChaCha20 cryptographic hardware accel
 ## System Architecture & SoC Integration
 The design integrates multiple hardware components to ensure reliable data movement and processing:
 * **Custom ChaCha20 IP (PL):** A high-speed Verilog core implementing the stream cipher.
-* **AXI DMA Controller:** Acts as the high-speed data mover. It utilizes AXI4-Memory Map (AXI-MM) to fetch data from the DDR memory and AXI4-Stream to push it into the crypto core.
-* **Infrastructure Blocks:** Includes AXI Interconnects for bus arbitration and Processor System Reset modules to ensure synchronized hardware startup.
+* **AXI DMA Controller:** Acts as the high-speed data mover. It utilizes **AXI4-Memory Map (AXI-MM)** to fetch data from memory and **AXI4-Stream** to push it into the crypto core.
+* **Infrastructure Blocks:** Includes **AXI Interconnects** for bus arbitration and data flow management, and Processor System Reset modules to ensure synchronized hardware startup.
 * **Processing System (PS):** An ARM-based processor running **Embedded Linux**, responsible for system orchestration and hardware validation.
 
-## Technical Specifications & Constraints
-* **Protocol Standard:** RFC 7539 (The official IETF standard for ChaCha20/Poly1305).
+## Technical Specifications & Standards
+* **Protocol Standard (RFC 7539):** The core logic is strictly compliant with the IETF RFC 7539 standard. This ensures that the hardware accelerator is 100% compatible with global software standards (like OpenSSL).
 * **Data Capacity:** Optimized for 512-bit block processing (64 bytes) per iteration, suitable for high-bandwidth streams.
 * **Memory Alignment:** The DMA engine requires 32-bit aligned memory addresses for stable burst transfers.
 * **Hardware Addressing:**
@@ -39,7 +39,7 @@ The system was validated on a physical Zynq SoC using a C-based validation scrip
 * **Input Plaintext:** `"ChaCha20 hardware accelerator running at full 512-bit capacity!"`
 * **Keystream Generation:** The hardware engine generates a unique 512-bit keystream based on the provided 256-bit Key and Nonce.
 * **Real-time XOR:** The IP performs a bitwise XOR between the plaintext and the keystream.
-* **Ciphertext (Output):** The resulting encrypted stream is captured via DMA. For the given test key, the output is verified as bit-perfect (Example HEX: `D2 4A 7B 1F`).
+* **Ciphertext (Output):** The resulting encrypted stream is captured via DMA. The output is verified as bit-perfect (Example HEX: `D2 4A 7B 1F`).
 
 ### 2. Decryption & Recovery (Decipher):
 * **Symmetric Property:** Due to the nature of stream ciphers, the generated Ciphertext is fed back into the hardware accelerator.
@@ -47,8 +47,8 @@ The system was validated on a physical Zynq SoC using a C-based validation scrip
 * **Result:** The final output is verified to be identical to the original input string, proving the arithmetic and timing integrity of the FPGA implementation.
 
 ### 3. Methodology:
-* **Static Test Vectors:** Used fixed 256-bit Keys and 64-byte payloads for deterministic, bit-perfect verification against RFC 7539 reference standards.
-* **Shadow Buffering (udmabuf):** Implementation of `udmabuf` ensures safe and synchronized memory sharing between userspace Linux and the FPGA hardware.
+* **Static Test Vectors:** Used fixed 256-bit Keys and 64-byte payloads for deterministic verification against reference standards.
+* **Shadow Buffering (udmabuf):** Implementation of `udmabuf` (userspace DMA buffers) ensures safe and synchronized memory sharing between Linux and the FPGA hardware.
 
 ## Project Structure
 * [RTL](./RTL) - Custom Verilog source files for the ChaCha20 IP (English comments).
