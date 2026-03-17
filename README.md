@@ -33,9 +33,16 @@ At the heart of this project is the custom Verilog RTL implementing the ChaCha20
 * **Real-time Processing:** The keystream undergoes a **real-time** bitwise XOR operation with the incoming AXI-Stream plaintext, outputting ciphertext immediately with minimal latency.
 
 ## Pre-Hardware Verification (Simulation)
-Prior to hardware implementation, the design was verified using a custom **Verilog Testbench** in Vivado Simulator.
-* **Testbench Methodology:** The testbench uses modular **Tasks** to run multiple test cases, ensuring functional accuracy against **RFC 7539 Standard Test Vectors**.
-* **Waveform Analysis:** Simulation results confirm the timing integrity of the ARX pipeline. Once the 20-round computation is complete, the `valid` flag triggers the real-time streaming phase.
+Prior to hardware implementation, the design was verified using a custom **Verilog Testbench** in Vivado Simulator to ensure full compliance with cryptographic standards.
+
+### 1. Testbench Methodology
+The testbench uses modular **Tasks** to run multiple test cases, including the official **RFC 7539 Standard Test Vector**. This automated process compares the hardware-generated keystream against the expected mathematical results defined by the IETF.
+
+### 2. Waveform Analysis & Timing
+Simulation results confirm the timing integrity of the ARX pipeline:
+* **FSM Latency:** Verification of the internal cycles required for the 20-round ChaCha20 transformation.
+* **Standard Compliance:** The 512-bit output was compared against reference vectors. For the RFC test case, the output matched the expected values (Starting with `e4e7f110...`), proving the correctness of the RTL implementation.
+* **Real-time Streaming:** The `valid` flag correctly triggers the XOR phase, synchronized with the AXI-Stream clock.
 
 ![Simulation Waveform](simulation_waveform.png)
 
