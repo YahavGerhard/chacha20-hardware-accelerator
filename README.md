@@ -36,7 +36,9 @@ At the heart of this project is the custom Verilog RTL implementing the ChaCha20
 Prior to hardware implementation, the design was verified using a custom **Verilog Testbench** in Vivado Simulator.
 * **Testbench Methodology:** The testbench uses modular **Tasks** to run multiple test cases, ensuring functional accuracy against **RFC 7539 Standard Test Vectors**.
 * **Waveform Analysis:** Simulation results confirm the timing integrity of the ARX pipeline. Once the 20-round computation is complete, the `valid` flag triggers the real-time streaming phase.
+
 ![Simulation Waveform](simulation_waveform.png)
+
 
 ## Verification & On-Board Validation
 The system was validated on a physical Zynq SoC using a C-based validation script. The process demonstrates a full cryptographic cycle:
