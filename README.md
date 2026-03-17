@@ -30,12 +30,16 @@ The design integrates multiple hardware components to ensure reliable data movem
 At the heart of this project is the custom Verilog RTL implementing the ChaCha20 algorithm. The design revolves around two core engineering concepts: the Cryptographic State Matrix and the hardware FSM.
 
 ### 1. The State Matrix & Algorithmic Uniqueness
-Unlike AES, which relies on lookup tables (S-boxes), ChaCha20 is a pure stream cipher based on **ARX** (Addition, Rotation, XOR) operations. This architectural choice makes it inherently immune to cache-timing side-channel attacks and exceptionally efficient in silicon. 
-The hardware initializes a 512-bit state matrix (4x4 grid of 32-bit words) exactly per the RFC standard:
+ChaCha20 is a pure stream cipher that derives its cryptographic strength entirely from **ARX** (Addition, Rotation, XOR) operations. By relying strictly on these straightforward mathematical and bitwise functions rather than complex memory lookups, the algorithm is exceptionally fast, highly secure, and highly efficient to implement in silicon. 
+The hardware initializes a 512-bit state matrix (a 4x4 grid of 32-bit words) exactly per the RFC standard:
 * **Constants (128-bit):** 4 fixed words that prevent zero-state vulnerabilities.
 * **Key (256-bit):** The primary secret symmetric key.
 * **Block Counter (32-bit):** Increments for each new 64-byte block, allowing random access and preventing keystream repetition across large data streams.
 * **Nonce (96-bit):** A "Number Used Once" to ensure unique ciphertexts even if the same key is reused for different messages.
+
+
+
+**The Encryption Flow:** Once initialized, the algorithm scrambles this matrix through 20 rounds of intense ARX mixing. The original state is then mathematically added to the scrambled result to produce a 512-bit pseudo-random keystream. Finally, this keystream is XORed with the incoming plaintext to generate the ciphertext.
 
 ### 2. RTL Architecture & FSM
 * **FSM-Based Control:** A 5-state Finite State Machine strictly manages the execution pipeline:
