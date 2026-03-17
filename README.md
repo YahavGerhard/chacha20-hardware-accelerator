@@ -37,8 +37,6 @@ The hardware initializes a 512-bit state matrix (a 4x4 grid of 32-bit words) exa
 * **Block Counter (32-bit):** Increments for each new 64-byte block, allowing random access and preventing keystream repetition across large data streams.
 * **Nonce (96-bit):** A "Number Used Once" to ensure unique ciphertexts even if the same key is reused for different messages.
 
-
-
 **The Encryption Flow:** Once initialized, the algorithm scrambles this matrix through 20 rounds of intense ARX mixing. The original state is then mathematically added to the scrambled result to produce a 512-bit pseudo-random keystream. Finally, this keystream is XORed with the incoming plaintext to generate the ciphertext.
 
 ### 2. RTL Architecture & FSM
@@ -58,10 +56,10 @@ Prior to hardware implementation, the design was verified using a custom **Veril
 The testbench uses modular **Tasks** to run multiple test cases, including the official **RFC 7539 Standard Test Vector**. This automated process compares the hardware-generated keystream against the expected mathematical results defined by the IETF.
 
 ### 2. Waveform Analysis & Timing
-Simulation results confirm the timing integrity of the ARX pipeline:
-* **FSM Latency:** Verification of the internal cycles required for the 20-round ChaCha20 transformation.
-* **Standard Compliance:** The 512-bit output was compared against reference vectors. For the RFC test case, the output matched the expected values (Starting with `e4e7f110...`), proving the correctness of the RTL implementation.
-* **Real-time Streaming:** The `valid` flag correctly triggers the XOR phase, synchronized with the AXI-Stream clock.
+The captured simulation waveform visually demonstrates the hardware's cycle-accurate behavior during an encryption task:
+* **Initialization & Computation Gap:** A single-clock pulse on the `start` signal triggers the FSM. The time gap between this `start` pulse and the `valid` signal rising represents the exact clock-cycle latency required for the 20-round ARX pipeline to process the matrix.
+* **Standard Compliance (Visualized):** Precisely when the `valid` flag transitions to high (`1`), the 512-bit `keystream` bus updates with the final computed data. The waveform shows the first 32-bit word emerging as `e4e7f110...`, which is a bit-perfect match to the IETF RFC 7539 reference vector.
+* **AXI-Stream Synchronization:** This `valid` signal acts as the trigger for the AXI-Stream `TVALID` line, guaranteeing that the DMA engine only pulls mathematically verified ciphertext.
 
 ![Simulation Waveform](simulation_waveform.png)
 
