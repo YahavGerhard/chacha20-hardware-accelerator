@@ -1,4 +1,5 @@
 # ChaCha20 Hardware Accelerator on Zynq SoC
+
 ![System Architecture](block_design.png)
 
 ## Overview
@@ -25,9 +26,9 @@ At the heart of this project is the custom Verilog RTL implementing the ChaCha20
 2. **Hardware Validation:** Tested on physical hardware. A C script utilizes `udmabuf` (Shadow Buffers) to pass 32-bit aligned data to the DMA, preventing bus contention and proving the hardware's real-time stability during on-board debugging.
 
 ## Repository Structure
-* `RTL/` - Custom Verilog source files for the ChaCha20 IP.
-* `Vivado/` - Block design, IP configurations, and hardware constraints.
-* `Hardware_Validation/` - C scripts used for hardware validation and on-board debugging via Linux.
+* [RTL](./RTL) - Custom Verilog source files for the ChaCha20 IP.
+* [Vivado](./block_design.png) - Block design and system architecture.
+* [Hardware_Validation](./Hardware_Validation) - C scripts used for hardware validation and on-board debugging via Linux.
 
 ---
 *A hardware-focused portfolio project demonstrating FPGA design, custom IP creation, and AXI architecture.*
