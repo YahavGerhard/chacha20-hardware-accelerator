@@ -29,11 +29,22 @@ At the heart of this project is the custom Verilog RTL implementing the ChaCha20
 * **Hardware Parallelism:** Utilizing the ARX (Add-Rotate-XOR) architecture, mathematical operations are physically wired for parallel execution.
 * **Datapath:** The keystream undergoes a bitwise XOR operation with the incoming AXI-Stream plaintext on-the-fly, outputting ciphertext immediately.
 
-## Verification & Hardware Validation
-1. **Simulation:** The Verilog core was verified using a Vivado Testbench to ensure algorithmic accuracy against RFC 7539 standard vectors.
-2. **On-Board Validation:** Tested on physical hardware using a C script. To ensure deterministic verification, the following methodology was used:
-   * **Static Test Vectors:** The validation script utilizes a fixed 256-bit Key and a 64-byte payload to verify bit-perfect output against reference standards.
-   * **Shadow Buffering:** Implementation of `udmabuf` (userspace DMA buffers) ensures safe memory sharing between Linux and the FPGA hardware.
+## Verification & On-Board Validation
+The system was validated on a physical Zynq SoC using a C-based test suite. The process demonstrates a full cryptographic cycle:
+
+### 1. Encryption Flow:
+* **Input Plaintext:** `"ChaCha20 hardware accelerator running at full 512-bit capacity!"`
+* **Keystream Generation:** The hardware engine generates a unique 512-bit keystream based on the provided Key and Nonce.
+* **XOR Operation:** The IP performs an on-the-fly bitwise XOR between the plaintext and keystream.
+* **Ciphertext (Output):** The resulting encrypted stream (Example HEX: `D2 4A 7B 1F...`) is streamed back to memory via DMA.
+
+### 2. Decryption & Recovery:
+* **Symmetric Property:** The Ciphertext is fed back into the hardware accelerator.
+* **Recovery:** Applying a second XOR operation with the identical keystream perfectly recovers the original string, proving the arithmetic integrity of the hardware implementation.
+
+### 3. Methodology:
+* **Static Test Vectors:** Used fixed 256-bit Keys and 64-byte payloads for deterministic, bit-perfect verification against RFC 7539 standards.
+* **Shadow Buffering:** Implementation of `udmabuf` ensures safe and synchronized memory sharing between userspace Linux and the FPGA.
 
 ## Repository Structure
 * [RTL](./RTL) - Custom Verilog source files for the ChaCha20 IP.
