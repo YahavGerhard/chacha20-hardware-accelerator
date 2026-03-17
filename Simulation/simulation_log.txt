@@ -1,0 +1,26 @@
+Time resolution is 1 ps
+
+==================================================
+Running Test:                   ALL ZEROS TEST
+==================================================
+OUTPUT KEYSTREAM (16 Words):
+Word  0-3  : ade0b876  903df1a0  e56a5d40  28bd8653
+Word  4-7  : b819d2bd  1aed8da0  ccef36a8  c70d778b
+Word  8-11 : 7c5941da  8d485751  3fe02477  374ad8b8
+Word 12-15 : f4b8436a  1ca11815  69b687c3  8665eeb2
+==================================================
+
+
+==================================================
+Running Test:    RFC 7539 STANDARD TEST VECTOR
+==================================================
+OUTPUT KEYSTREAM (16 Words):
+Word  0-3  : e4e7f110  15593bd1  1fdd0f50  c47120a3
+Word  4-7  : c7f4d1c7  0368c033  9aaa2204  4e6cd4c3
+Word  8-11 : 466482d2  09aa9f07  05d7c214  a2028bd9
+Word 12-15 : d19c12b5  b94e16de  e883d0cb  4e3c50a2
+==================================================
+
+ALL TESTS COMPLETED SUCCESSFULLY!
+$finish called at time : 605 ns : File "D:/Projects/chacha20_accelerator/chacha20_accelerator.srcs/sim_1/new/tb_chacha_core.v" Line 88
+relaunch_sim: Time (s): cpu = 00:00:01 ; elapsed = 00:00:06 . Memory (MB): peak = 1865.578 ; gain = 2.203
