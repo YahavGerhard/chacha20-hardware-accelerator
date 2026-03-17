@@ -23,7 +23,7 @@ At the heart of this project is the custom Verilog RTL implementing the ChaCha20
 
 ## Verification
 1. **Simulation:** The Verilog core was verified using a Vivado Testbench to ensure algorithmic accuracy against standard ChaCha20 vectors and to validate AXI-Stream handshakes.
-2. **Hardware Validation:** Tested on physical hardware. A C script utilizes `udmabuf` (Shadow Buffers) to pass 32-bit aligned data to the DMA, preventing bus contention and proving the hardware's real-time stability during on-board debugging.
+2. **Hardware Validation:** Tested on physical hardware. A C script utilizes static test vectors (pre-defined Key, Nonce, and Constants) to verify the hardware implementation against official ChaCha20 reference outputs. The script handles DMA transfers and proves the hardware's real-time stability during on-board debugging.
 
 ## Repository Structure
 * [RTL](./RTL) - Custom Verilog source files for the ChaCha20 IP.
