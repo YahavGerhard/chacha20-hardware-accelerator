@@ -1,3 +1,4 @@
+// Note: This test script uses a fixed key and 64-byte payload for hardware validation.
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
