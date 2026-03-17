@@ -8,7 +8,7 @@ This project showcases a custom-designed **ChaCha20 cryptographic hardware accel
 ## System Architecture & SoC Integration
 The design integrates multiple hardware components to ensure reliable data movement and processing:
 * **Custom ChaCha20 IP (PL):** A high-speed Verilog core implementing the stream cipher.
-* **AXI DMA Controller:** Acts as the high-speed data mover. It utilizes **AXI4-Memory Map (AXI-MM)** to fetch data from the DDR memory and **AXI4-Stream** to push it into the crypto core.
+* **AXI DMA Controller:** Acts as the high-speed data mover. It utilizes AXI4-Memory Map (AXI-MM) to fetch data from the DDR memory and AXI4-Stream to push it into the crypto core.
 * **Infrastructure Blocks:** Includes AXI Interconnects for bus arbitration and Processor System Reset modules to ensure synchronized hardware startup.
 * **Processing System (PS):** An ARM-based processor running **Embedded Linux**, responsible for system orchestration and hardware validation.
 
