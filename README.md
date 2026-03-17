@@ -30,7 +30,7 @@ At the heart of this project is the custom Verilog RTL implementing the ChaCha20
 * **Datapath:** The keystream undergoes a bitwise XOR operation with the incoming AXI-Stream plaintext on-the-fly, outputting ciphertext immediately.
 
 ## Verification & On-Board Validation
-The system was validated on a physical Zynq SoC using a C-based test suite. The process demonstrates a full cryptographic cycle:
+The system was validated on a physical Zynq SoC using a C-based validation script. The process demonstrates a full cryptographic cycle:
 
 ### 1. Encryption Flow:
 * **Input Plaintext:** `"ChaCha20 hardware accelerator running at full 512-bit capacity!"`
