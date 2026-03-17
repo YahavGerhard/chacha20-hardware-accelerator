@@ -1,4 +1,5 @@
 # ChaCha20 Hardware Accelerator on Zynq SoC
+![System Architecture](block_design.png)
 
 ## Overview
 This repository showcases a custom-designed **ChaCha20 cryptography hardware accelerator**, implemented on a Xilinx Zynq SoC. The primary focus of this project is to design an efficient, high-throughput FPGA IP that offloads heavy stream cipher computations from the CPU directly into dedicated hardware.
