@@ -32,6 +32,13 @@ At the heart of this project is the custom Verilog RTL implementing the ChaCha20
 * **Hardware Parallelism:** Utilizing the ARX (Add-Rotate-XOR) architecture, mathematical operations are physically wired for parallel execution.
 * **Real-time Processing:** The keystream undergoes a **real-time** bitwise XOR operation with the incoming AXI-Stream plaintext, outputting ciphertext immediately with minimal latency.
 
+## Pre-Hardware Verification (Simulation)
+Before physical deployment, the design was rigorously verified using a custom **Verilog Testbench** in Vivado Simulator.
+* **Testbench Methodology:** The testbench utilizes modular **Tasks** to run multiple scenarios, ensuring functional accuracy against official **RFC 7539 Standard Test Vectors**.
+* **Waveform Analysis:** Simulation waveforms confirm the timing integrity of the ARX pipeline. Once the 20-round computation is complete, the `valid` flag triggers the real-time streaming phase.
+* **Waveform Evidence:**
+![Simulation Waveform](simulation_waveform.png)
+
 ## Verification & On-Board Validation
 The system was validated on a physical Zynq SoC using a C-based validation script. The process demonstrates a full cryptographic cycle:
 
@@ -51,9 +58,4 @@ The system was validated on a physical Zynq SoC using a C-based validation scrip
 * **Shadow Buffering (udmabuf):** Implementation of `udmabuf` (userspace DMA buffers) ensures safe and synchronized memory sharing between Linux and the FPGA hardware.
 
 ## Project Structure
-* [RTL](./RTL) - Custom Verilog source files for the ChaCha20 IP (English comments).
-* [Vivado](./block_design.png) - Block design and system architecture.
-* [Hardware_Validation](./Hardware_Validation) - C scripts used for hardware validation and on-board debugging.
-
----
-*A hardware-focused portfolio project demonstrating FPGA design, custom IP creation, and AXI architecture.*
+* [RTL](./RTL) - Custom Verilog source files for the ChaCha20 IP
