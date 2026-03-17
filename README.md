@@ -54,16 +54,16 @@ The system was validated on a physical Zynq SoC using a C-based validation scrip
 * **Input Plaintext:** `"ChaCha20 hardware accelerator running at full 512-bit capacity!"`
 * **Keystream Generation:** The hardware engine generates a unique 512-bit keystream based on the provided 256-bit Key and Nonce.
 * **Real-time XOR:** The IP performs a bitwise XOR between the plaintext and the keystream.
-* **Ciphertext (Output):** The resulting encrypted stream is captured via DMA. The output is verified as bit-perfect (Example HEX: `D2 4A 7B 1F`).
+* **Ciphertext (Output):** he resulting encrypted stream is captured via DMA. For the reference test vector, the output was verified as bit-perfect (Example HEX: `63 76 B6 71 3A ...`), matching the expected cryptographic result.
 
 ### 2. Decryption & Recovery (Decipher):
 * **Symmetric Property:** Due to the nature of stream ciphers, the generated Ciphertext is fed back into the hardware accelerator.
 * **XOR Reversibility:** Applying a second XOR operation with the identical keystream in real-time perfectly recovers the original message.
 * **Result:** The final output is verified to be identical to the original input string, proving the arithmetic and timing integrity of the FPGA implementation.
 
-### 3. Methodology:
+### 3. Methodology & System Drivers:
 * **Static Test Vectors:** Used fixed 256-bit Keys and 64-byte payloads for deterministic verification against reference standards.
-* **Shadow Buffering (udmabuf):** Implementation of `udmabuf` (userspace DMA buffers) ensures safe and synchronized memory sharing between Linux and the FPGA hardware.
+* **Kernel-Level Driver (udmabuf):** Leveraged the `udmabuf` (userspace DMA buffers) driver to allocate physically contiguous memory. This ensures a reliable interface for DMA transfers and provides synchronized memory sharing between Linux userspace and the FPGA hardware.
 
 ## Project Structure
 * [RTL](./RTL) - Custom Verilog source files for the ChaCha20 IP (English comments).
