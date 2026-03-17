@@ -57,7 +57,7 @@ module chacha20_axi_v1_0 #
 );
 
     // ========================================================
-    // חוטים פנימיים שיחברו בין ה-AXI-Lite לבין הליבה שלנו
+    // Internal signals connecting AXI-Lite to the ChaCha20 Core
     // ========================================================
     wire [255:0] sig_key;
     wire [95:0]  sig_nonce;
@@ -67,7 +67,7 @@ module chacha20_axi_v1_0 #
     wire [511:0] sig_keystream;
     wire         sig_valid;
 
-    // Instantiation of Axi Bus Interface S00_AXI (המעודכן בלבד!)
+    // Instantiation of Axi Bus Interface S00_AXI
     chacha20_axi_v1_0_S00_AXI # ( 
         .C_S_AXI_DATA_WIDTH(C_S00_AXI_DATA_WIDTH),
         .C_S_AXI_ADDR_WIDTH(C_S00_AXI_ADDR_WIDTH)
@@ -93,7 +93,7 @@ module chacha20_axi_v1_0 #
         .S_AXI_RRESP(s00_axi_rresp),
         .S_AXI_RVALID(s00_axi_rvalid),
         .S_AXI_RREADY(s00_axi_rready),
-        // --- היציאות החדשות שכתבנו מתחברות לחוטים הפנימיים! ---
+        // Connect control registers to internal signals
         .key_out(sig_key),
         .nonce_out(sig_nonce),
         .counter_out(sig_counter),
@@ -128,7 +128,7 @@ module chacha20_axi_v1_0 #
     );
 
     // ========================================================
-    // הלחמה של ליבת ההצפנה שכתבנו לתוך המערכת!
+    // Custom ChaCha20 Core Instantiation
     // ========================================================
     chacha_core my_crypto_brain (
         .clk(s00_axi_aclk),
@@ -142,12 +142,12 @@ module chacha20_axi_v1_0 #
     );
 
     // ========================================================
-    // ניהול זרם הנתונים (AXI-Stream) וההצפנה בפועל (XOR)
+    // AXI-Stream Data Management and XOR Processing
     // ========================================================
     reg [2:0] chunk_counter;
     wire [63:0] current_keystream_chunk;
 
-    // חלוקת ה-512 ביט ל-8 חתיכות של 64 ביט באמצעות מרבב
+    // Splitting 512-bit keystream into 8x 64-bit chunks for streaming
     assign current_keystream_chunk =
         (chunk_counter == 3'd0) ? sig_keystream[63:0]   :
         (chunk_counter == 3'd1) ? sig_keystream[127:64]  :
@@ -158,24 +158,19 @@ module chacha20_axi_v1_0 #
         (chunk_counter == 3'd6) ? sig_keystream[447:384] :
                                   sig_keystream[511:448];
 
-    // הלב של המערכת: מידע נכנס XOR חתיכת רעש = מידע מוצפן יוצא!
-    // אבל... אנחנו שולטים פה על המידע בעזרת ה-M00_AXIS שיצרנו עכשיו.
-    // מכיוון שיש לנו קבצי AXI Stream נפרדים, אנחנו צריכים לוודא שהם לא "דורסים" 
-    // את הלוגיקה שיצרנו פה. 
-    // במקרה הזה, בגלל שאנחנו רוצים שההצפנה תקרה ממש פה במעטפת:
-    // נחווט את היציאות הישירות ל-Ports שיצאו החוצה, ונתעלם מקבצי ה-AXIS הפנימיים.
-    // (זו שיטה מקובלת מאוד כדי לחסוך באגים של תקשורת כפולה).
-
-    assign m00_axis_tdata = s00_axis_tdata ^ current_keystream_chunk;
+    // Real-time processing: Plaintext XOR Keystream = Ciphertext
+    // Signals are routed directly to/from top-level ports for efficiency
+    assign m00_axis_tdata  = s00_axis_tdata ^ current_keystream_chunk;
     assign m00_axis_tvalid = s00_axis_tvalid & sig_valid;
     assign s00_axis_tready = m00_axis_tready & sig_valid;
     assign m00_axis_tlast  = s00_axis_tlast;
     assign m00_axis_tstrb  = s00_axis_tstrb;
 
+    // Chunk counter logic to synchronize with AXI-Stream handshakes
     always @(posedge s00_axis_aclk) begin
         if (!s00_axis_aresetn) begin
             chunk_counter <= 3'd0;
-        end else if (s00_axis_tvalid && s00_axis_tready && sig_valid) begin
+        } else if (s00_axis_tvalid && s00_axis_tready && sig_valid) begin
             chunk_counter <= chunk_counter + 3'd1;
         end
     end
