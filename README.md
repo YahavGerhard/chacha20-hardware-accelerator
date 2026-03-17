@@ -27,10 +27,25 @@ The design integrates multiple hardware components to ensure reliable data movem
 * **AXI4-MM (Memory Map):** Used by the DMA to interface directly with the SoC's DDR memory.
 
 ## Hardware Implementation (Verilog)
-At the heart of this project is the custom Verilog RTL implementing the ChaCha20 algorithm:
-* **FSM-Based Control:** A Finite State Machine strictly manages the initialization phase and the 20-round cryptographic computations.
-* **Hardware Parallelism:** Utilizing the ARX (Add-Rotate-XOR) architecture, mathematical operations are physically wired for parallel execution.
-* **Real-time Processing:** The keystream undergoes a **real-time** bitwise XOR operation with the incoming AXI-Stream plaintext, outputting ciphertext immediately with minimal latency.
+At the heart of this project is the custom Verilog RTL implementing the ChaCha20 algorithm. The design revolves around two core engineering concepts: the Cryptographic State Matrix and the hardware FSM.
+
+### 1. The State Matrix & Algorithmic Uniqueness
+Unlike AES, which relies on lookup tables (S-boxes), ChaCha20 is a pure stream cipher based on **ARX** (Addition, Rotation, XOR) operations. This architectural choice makes it inherently immune to cache-timing side-channel attacks and exceptionally efficient in silicon. 
+The hardware initializes a 512-bit state matrix (4x4 grid of 32-bit words) exactly per the RFC standard:
+* **Constants (128-bit):** 4 fixed words that prevent zero-state vulnerabilities.
+* **Key (256-bit):** The primary secret symmetric key.
+* **Block Counter (32-bit):** Increments for each new 64-byte block, allowing random access and preventing keystream repetition across large data streams.
+* **Nonce (96-bit):** A "Number Used Once" to ensure unique ciphertexts even if the same key is reused for different messages.
+
+### 2. RTL Architecture & FSM
+* **FSM-Based Control:** A 5-state Finite State Machine strictly manages the execution pipeline:
+  * `IDLE`: Awaiting the start signal.
+  * `INIT`: Loading the 512-bit initial matrix.
+  * `ROUNDS`: Executing the 20-round core engine. This phase alternates between **Column Rounds** (mixing data vertically) and **Diagonal Rounds** (mixing data diagonally) to guarantee rapid cryptographic diffusion across the entire matrix.
+  * `FINAL_ADD`: Adding the original state to the scrambled state to ensure non-reversibility.
+  * `DONE`: Triggering the `valid` flag for the AXI-Stream interface.
+* **Hardware Parallelism:** By physically wiring the ARX operations, multiple matrix cells are processed simultaneously per clock cycle, drastically reducing latency compared to sequential software execution.
+* **Real-time Processing:** The generated 512-bit keystream undergoes a **real-time** bitwise XOR operation with the incoming AXI-Stream plaintext, outputting ciphertext immediately.
 
 ## Pre-Hardware Verification (Simulation)
 Prior to hardware implementation, the design was verified using a custom **Verilog Testbench** in Vivado Simulator to ensure full compliance with cryptographic standards.
@@ -46,7 +61,6 @@ Simulation results confirm the timing integrity of the ARX pipeline:
 
 ![Simulation Waveform](simulation_waveform.png)
 
-
 ## Verification & On-Board Validation
 The system was validated on a physical Zynq SoC using a C-based validation script. The process demonstrates a full cryptographic cycle:
 
@@ -54,7 +68,7 @@ The system was validated on a physical Zynq SoC using a C-based validation scrip
 * **Input Plaintext:** `"ChaCha20 hardware accelerator running at full 512-bit capacity!"`
 * **Keystream Generation:** The hardware engine generates a unique 512-bit keystream based on the provided 256-bit Key and Nonce.
 * **Real-time XOR:** The IP performs a bitwise XOR between the plaintext and the keystream.
-* **Ciphertext (Output):** he resulting encrypted stream is captured via DMA. For the reference test vector, the output was verified as bit-perfect (Example HEX: `63 76 B6 71 3A ...`), matching the expected cryptographic result.
+* **Ciphertext (Output):** The resulting encrypted stream is captured via DMA. For the reference test vector, the output was verified as bit-perfect (Example HEX: `63 76 B6 71 3A ...`), matching the expected cryptographic result.
 
 ### 2. Decryption & Recovery (Decipher):
 * **Symmetric Property:** Due to the nature of stream ciphers, the generated Ciphertext is fed back into the hardware accelerator.
