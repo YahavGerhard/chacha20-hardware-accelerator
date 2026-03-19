@@ -70,7 +70,7 @@ The system was validated on a physical Zynq SoC using a C-based validation scrip
 * **Input Plaintext:** `"ChaCha20 hardware accelerator running at full 512-bit capacity!"`
 * **Keystream Generation:** The hardware engine generates a unique 512-bit keystream based on the provided 256-bit Key and Nonce.
 * **Real-time XOR:** The IP performs a bitwise XOR between the plaintext and the keystream.
-* **Ciphertext (Output):** The resulting encrypted stream is captured via DMA. For the reference test vector, the output was verified as bit-perfect (Example HEX: `5A 3B DC EB ...`), matching the expected cryptographic result.
+* **Ciphertext (Output):** The resulting encrypted stream is captured via DMA (Example HEX: 5A 3B DC EB ...). The hardware seamlessly decrypts this exact stream back to the original plaintext, verifying on-board functional correctness.
 
 ### 2. Decryption & Recovery (Decipher):
 * **Symmetric Property:** Due to the nature of stream ciphers, the generated Ciphertext is fed back into the hardware accelerator.
