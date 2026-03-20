@@ -3,7 +3,7 @@
 ![System Architecture](block_design.png)
 
 ## Overview
-This project showcases a custom-designed **ChaCha20 cryptographic hardware accelerator**, implemented on a Xilinx Zynq UltraScale+ SoC. The primary objective was to develop a robust encryption system capable of processing large data streams with high security and minimal latency, leveraging dedicated FPGA logic to outperform software-based implementations.
+This project showcases a custom-designed **ChaCha20 cryptographic hardware accelerator**, implemented on a Xilinx Zynq UltraScale+ SoC. Today, ChaCha20 is widely used to secure everyday internet communication and VPNs. The primary objective was to develop a robust encryption system capable of processing large data streams with high security and minimal latency, leveraging dedicated FPGA logic to outperform software-based implementations.
 
 ## System Architecture & SoC Integration
 The design integrates multiple hardware components to ensure reliable data movement and processing:
@@ -37,7 +37,7 @@ The hardware initializes a 512-bit state matrix (a 4x4 grid of 32-bit words) exa
 * **Block Counter (32-bit):** Increments for each new 64-byte block, allowing random access and preventing keystream repetition across large data streams.
 * **Nonce (96-bit):** A "Number Used Once" to ensure unique ciphertexts even if the same key is reused for different messages.
 
-**The Encryption Flow:** Once initialized, the algorithm scrambles this matrix through 20 rounds of intense ARX mixing. The original state is then mathematically added to the scrambled result to produce a 512-bit pseudo-random keystream. Finally, this keystream is XORed with the incoming plaintext to generate the ciphertext.
+**The Encryption Flow:** Once initialized, the algorithm scrambles this matrix through 20 rounds of intense ARX mixing. The original state is then mathematically added to the scrambled result to produce a 512-bit keystream. Finally, this keystream is XORed with the incoming plaintext to generate the ciphertext. Because this is a symmetric stream cipher, the exact same mathematical flow is used for decryption: feeding the shared secret Key and public Nonce into the receiver's hardware generates the identical keystream, perfectly restoring the original plaintext.
 
 ### 2. RTL Architecture & FSM
 * **FSM-Based Control:** A 5-state Finite State Machine strictly manages the execution pipeline:
